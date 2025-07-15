@@ -43,6 +43,8 @@ public class FXMLDocumentController implements Initializable {
     private Connection connect;
     private PreparedStatement prepare;
     private ResultSet result;
+    @FXML
+    private Button admin;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -107,6 +109,8 @@ public class FXMLDocumentController implements Initializable {
 
                 // Close login window
                 ((Stage) login1.getScene().getWindow()).close();
+                
+                
             } else {
                 showAlert("Login Failed", "Incorrect TCB ID, NID Number, or Password!", AlertType.ERROR);
             }
@@ -122,5 +126,17 @@ public class FXMLDocumentController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void admin_login(ActionEvent event) throws IOException {
+        
+        
+        
+         Parent root = FXMLLoader.load(getClass().getResource("admin.fxml"));
+                Stage stage = new Stage();
+                stage.setTitle("Dashboard");
+                stage.setScene(new Scene(root));
+                stage.show();
     }
 }

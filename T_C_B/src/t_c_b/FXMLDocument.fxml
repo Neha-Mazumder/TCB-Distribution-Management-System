@@ -29,22 +29,32 @@
                   </Label>
                </children>
             </AnchorPane>
-            <AnchorPane layoutX="289.0" prefHeight="402.0" prefWidth="311.0" style="-fx-background-color: #7FB893;">
+            <AnchorPane layoutX="289.0" layoutY="1.0" prefHeight="402.0" prefWidth="311.0" style="-fx-background-color: #7FB893;">
                <children>
-                  <Label layoutX="106.0" layoutY="127.0" prefHeight="41.0" prefWidth="95.0" text="Login" textFill="#972222" underline="true">
+                  <Label layoutX="106.0" layoutY="127.0" prefHeight="41.0" prefWidth="95.0" text=" লগইন" textFill="#972222" underline="true">
                      <font>
                         <Font name="System Bold" size="21.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="Enter_NID_Number" layoutX="79.0" layoutY="168.0" promptText="Enter NID Number" stylesheets="@login.css" />
-                  <PasswordField fx:id="pass" layoutX="81.0" layoutY="262.0" promptText="Enter Secret PIN" />
-                  <Button fx:id="login1" layoutX="121.0" layoutY="301.0" mnemonicParsing="false" onAction="#loginBtn" prefHeight="32.0" prefWidth="65.0" styleClass="login-btn" stylesheets="@login.css" text="Login">
+                  <TextField fx:id="Enter_NID_Number" layoutX="79.0" layoutY="168.0" promptText="NID_নম্বর লিখুন" stylesheets="@login.css" />
+                  <PasswordField fx:id="pass" layoutX="81.0" layoutY="262.0" promptText="গোপন পিন লিখুন" />
+                  <Button fx:id="login1" layoutX="128.0" layoutY="295.0" mnemonicParsing="false" onAction="#loginBtn" prefHeight="32.0" prefWidth="65.0" styleClass="login-btn" stylesheets="@login.css" text="লগইন">
                      <font>
                         <Font name="System Bold" size="11.0" />
                      </font>
                   </Button>
                   <FontAwesomeIcon glyphName="USERS" layoutX="100.0" layoutY="122.0" size="6em" />
-                  <TextField fx:id="Enter_TCB_ID" layoutX="81.0" layoutY="214.0" promptText="Enter TCB  ID" stylesheets="@login.css" />
+                  <TextField fx:id="Enter_TCB_ID" layoutX="81.0" layoutY="214.0" promptText="TCB আইডি লিখুন" stylesheets="@login.css" />
+                  <Label layoutX="14.0" layoutY="352.0" text="&lt;-">
+                     <font>
+                        <Font size="23.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="admin" layoutX="39.0" layoutY="356.0" mnemonicParsing="false" onAction="#admin_login" styleClass="login-btn" text="অ্যাডমিন লগইন" textFill="#1e1e1f">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Button>
                </children>
             </AnchorPane>
          </children>
