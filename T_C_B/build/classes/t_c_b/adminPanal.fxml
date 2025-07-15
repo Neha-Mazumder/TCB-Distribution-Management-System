@@ -6,10 +6,17 @@
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
@@ -18,7 +25,7 @@
         <URL value="@adminpanal.css" />
     </stylesheets>
    <children>
-      <AnchorPane layoutX="-4.0" prefHeight="522.0" prefWidth="885.0" style="-fx-background-color: #7FB893;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="-4.0" AnchorPane.rightAnchor="-5.0" AnchorPane.topAnchor="0.0">
+      <AnchorPane layoutX="-4.0" prefHeight="522.0" prefWidth="885.0" style="-fx-background-color: #7FB893;" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="-4.0" AnchorPane.rightAnchor="-5.0" AnchorPane.topAnchor="0.0">
          <children>
             <StackPane prefHeight="105.0" prefWidth="150.0">
                <children>
@@ -146,5 +153,68 @@
                </font>
             </Label>
          </children></AnchorPane>
+      <AnchorPane layoutX="365.0" layoutY="85.0" prefHeight="522.0" prefWidth="902.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <AnchorPane layoutX="6.0" layoutY="-18.0" prefHeight="223.0" prefWidth="891.0">
+               <children>
+                  <TableView layoutX="3.0" layoutY="20.0" prefHeight="200.0" prefWidth="885.0" style="-fx-background-color: #82c599;">
+                    <columns>
+                      <TableColumn prefWidth="106.00000286102295" text="পণ্য আইডি" />
+                      <TableColumn prefWidth="188.00000762939453" text="পণ্যের নাম" />
+                        <TableColumn prefWidth="142.66665649414062" text="পণ্যের ধরন" />
+                        <TableColumn prefWidth="115.3333740234375" text="মজুত" />
+                        <TableColumn prefWidth="171.3333740234375" text="মূল্য" />
+                        <TableColumn prefWidth="145.33331298828125" text="তারিখ" />
+                    </columns>
+                  </TableView>
+               </children>
+            </AnchorPane>
+            <AnchorPane layoutX="6.0" layoutY="226.0" prefHeight="291.0" prefWidth="891.0">
+               <children>
+                  <Label layoutX="40.0" layoutY="47.0" text="পণ্য আইডি">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="40.0" layoutY="92.0" text="পণ্যের নাম">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="39.0" layoutY="138.0" text="পণ্যের ধরন">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <TextField layoutX="130.0" layoutY="45.0" />
+                  <TextField layoutX="142.0" layoutY="89.0" />
+                  <ComboBox layoutX="142.0" layoutY="135.0" prefWidth="150.0" promptText="পণ্যের ধরন বেছে নিন" />
+                  <Label layoutX="369.0" layoutY="47.0" text="মজুত">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <TextField layoutX="443.0" layoutY="88.0" promptText="0.00/-" />
+                  <Label layoutX="370.0" layoutY="91.0" text="মূল্য">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <TextField layoutX="443.0" layoutY="54.0" promptText="0" />
+                  <AnchorPane layoutX="682.0" layoutY="25.0" prefHeight="158.0" prefWidth="181.0">
+                     <children>
+                        <BorderPane prefHeight="158.0" prefWidth="181.0" />
+                     </children>
+                  </AnchorPane>
+                  <Button layoutX="752.0" layoutY="207.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="74.0" style="-fx-background-color: #82c599;" text="ইম্পোর্ট" />
+                  <Button layoutX="67.0" layoutY="204.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="97.0" style="-fx-background-color: #82c599;" text="যোগ করুন" />
+                  <Button layoutX="205.0" layoutY="204.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="97.0" style="-fx-background-color: #82c599;" text="আপডেট" />
+                  <Button layoutX="346.0" layoutY="204.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="97.0" style="-fx-background-color: #82c599;" text="বাতিল" />
+                  <Button layoutX="484.0" layoutY="204.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="97.0" style="-fx-background-color: #82c599;" text="মুছে দিন" />
+               </children>
+            </AnchorPane>
+         </children>
+      </AnchorPane>
+      <Separator layoutX="8.0" layoutY="217.0" prefHeight="3.0" prefWidth="891.0" />
    </children>
 </AnchorPane>

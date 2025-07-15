@@ -14,6 +14,8 @@ import javafx.fxml.Initializable;
  * @author Youtech BD
  */
 public class AdminPanalController implements Initializable {
+    
+    
 
     /**
      * Initializes the controller class.
