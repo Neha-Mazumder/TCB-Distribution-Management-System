@@ -17,16 +17,16 @@
          <children>
             <AnchorPane layoutY="-4.0" prefHeight="404.0" prefWidth="289.0">
                <children>
-                  <ImageView fitHeight="402.0" fitWidth="335.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@image/logo2.png" />
-                     </image>
-                  </ImageView>
                   <Label layoutX="67.0" layoutY="44.0" prefHeight="32.0" prefWidth="177.0" text="মানুষের সেবায়" textFill="#ff1919">
                      <font>
                         <Font name="System Bold" size="21.0" />
                      </font>
                   </Label>
+                  <ImageView fitHeight="310.0" fitWidth="280.0" layoutX="2.0" layoutY="86.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@image/tcb.png" />
+                     </image>
+                  </ImageView>
                </children>
             </AnchorPane>
             <AnchorPane layoutX="289.0" layoutY="1.0" prefHeight="402.0" prefWidth="311.0" style="-fx-background-color: #7FB893;">
@@ -36,25 +36,15 @@
                         <Font name="System Bold" size="21.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="Enter_NID_Number" layoutX="79.0" layoutY="168.0" promptText="NID_নম্বর লিখুন" stylesheets="@login.css" />
-                  <PasswordField fx:id="pass" layoutX="81.0" layoutY="262.0" promptText="গোপন পিন লিখুন" />
-                  <Button fx:id="login1" layoutX="128.0" layoutY="295.0" mnemonicParsing="false" onAction="#loginBtn" prefHeight="32.0" prefWidth="65.0" styleClass="login-btn" stylesheets="@login.css" text="লগইন">
+                  <TextField fx:id="nid_number" layoutX="79.0" layoutY="168.0" promptText="NID_নম্বর লিখুন" stylesheets="@login.css" />
+                  <TextField fx:id="tcb_id" layoutX="81.0" layoutY="214.0" promptText="TCB আইডি লিখুন" stylesheets="@login.css" />
+                  <PasswordField fx:id="password" layoutX="81.0" layoutY="262.0" promptText="গোপন পিন লিখুন" />
+                  <Button fx:id="login_button" layoutX="128.0" layoutY="295.0" mnemonicParsing="false" onAction="#loginBtn" prefHeight="32.0" prefWidth="65.0" styleClass="login-btn" stylesheets="@login.css" text="লগইন">
                      <font>
                         <Font name="System Bold" size="11.0" />
                      </font>
                   </Button>
                   <FontAwesomeIcon glyphName="USERS" layoutX="100.0" layoutY="122.0" size="6em" />
-                  <TextField fx:id="Enter_TCB_ID" layoutX="81.0" layoutY="214.0" promptText="TCB আইডি লিখুন" stylesheets="@login.css" />
-                  <Label layoutX="14.0" layoutY="352.0" text="&lt;-">
-                     <font>
-                        <Font size="23.0" />
-                     </font>
-                  </Label>
-                  <Button fx:id="admin" layoutX="39.0" layoutY="356.0" mnemonicParsing="false" onAction="#admin_login" styleClass="login-btn" text="অ্যাডমিন লগইন" textFill="#1e1e1f">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
-                  </Button>
                </children>
             </AnchorPane>
          </children>

@@ -9,14 +9,14 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="335.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t_c_b.AdminlController">
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="369.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="t_c_b.AdminlController">
     <stylesheets>
         <URL value="@admin.fxml.css" />
     </stylesheets>
    <children>
       <AnchorPane layoutX="113.0" layoutY="140.0" prefHeight="400.0" prefWidth="335.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <AnchorPane prefHeight="400.0" prefWidth="335.0" style="-fx-background-color: #7FB893;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <AnchorPane prefHeight="400.0" prefWidth="344.0" style="-fx-background-color: #7FB893;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
                   <FontAwesomeIcon glyphName="USERS" layoutX="133.0" layoutY="98.0" size="6em" text="" />
                   <Label layoutX="115.0" layoutY="116.0" text="অ্যাডমিন লগইন">
@@ -24,8 +24,8 @@
                         <Font name="System Bold" size="17.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="admin_id" layoutX="98.0" layoutY="187.0" promptText="অ্যাডমিন আইডি লিখুন" />
-                  <PasswordField fx:id="admin_pass" layoutX="97.0" layoutY="231.0" promptText="পাসওয়ার্ড লিখুন" />
+                  <TextField fx:id="tcb_id" layoutX="98.0" layoutY="187.0" promptText="অ্যাডমিন আইডি লিখুন" />
+                  <PasswordField fx:id="password" layoutX="97.0" layoutY="231.0" promptText="পাসওয়ার্ড লিখুন" />
                   <Button fx:id="admin_login" layoutX="145.0" layoutY="271.0" mnemonicParsing="false" onAction="#login_button" stylesheets="@admin.fxml.css" text="লগইন" />
                </children>
             </AnchorPane>
