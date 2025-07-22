@@ -112,7 +112,7 @@
                                   <Font size="23.0" />
                               </font>
                           </Label>
-                  <ImageView fitHeight="120.0" fitWidth="168.0" layoutX="142.0" layoutY="-2.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fitHeight="120.0" fitWidth="168.0" layoutX="234.0" layoutY="2.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@../../../../TCB-Distribution-Management-System%20(main)/T_C_B/src/t_c_b/image/6e2aae32-7dea-4b69-93dd-70ccce3018d5.jpg" />
                      </image>
