@@ -20,6 +20,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.BarChart;
+import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -86,7 +87,7 @@ public class AdminPanalController implements Initializable {
     @FXML
     private Label total_products_sold_label;
     @FXML
-    private AreaChart<String, Number> day_income_chart;
+    private AreaChart<?, ?> day_income_chart;
     @FXML
     private BarChart<String, Number> customer_chart;
     @FXML
@@ -418,7 +419,8 @@ public class AdminPanalController implements Initializable {
                         incomeSeries.getData().add(new XYChart.Data<>(chartRs.getString("sale_date"), chartRs.getDouble("total")));
                     }
                     day_income_chart.getData().clear();
-                    day_income_chart.getData().add(incomeSeries);
+                   // day_income_chart.getData().add(incomeSeries);
+                  
                 }
 
                 XYChart.Series<String, Number> customerSeries = new XYChart.Series<>();
