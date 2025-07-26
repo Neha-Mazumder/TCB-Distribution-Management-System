@@ -18,9 +18,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.BarChart;
-import javafx.scene.chart.BarChart;
+import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -87,7 +86,7 @@ public class AdminPanalController implements Initializable {
     @FXML
     private Label total_products_sold_label;
     @FXML
-    private AreaChart<?, ?> day_income_chart;
+    private PieChart stock_pie_chart; // Changed from AreaChart to PieChart
     @FXML
     private BarChart<String, Number> customer_chart;
     @FXML
@@ -327,10 +326,10 @@ public class AdminPanalController implements Initializable {
                     }
                 }
             } else {
-                showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to connect to database");
+                showAlert(Alert.AlertType.ERROR, "Database Error", "ডাটাবেসের সাথে সংযোগ করতে ব্যর্থ হয়েছে");
             }
         } catch (SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error", "Error loading inventory data: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Database Error", "ইনভেন্টরি ডেটা লোড করার সময় ত্রুটি৷: " + e.getMessage());
         }
     }
 
@@ -348,10 +347,10 @@ public class AdminPanalController implements Initializable {
                     }
                 }
             } else {
-                showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to connect to database");
+                showAlert(Alert.AlertType.ERROR, "Database Error", "ডাটাবেসের সাথে সংযোগ করতে ব্যর্থ হয়েছে");
             }
         } catch (SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error", "Error loading customer data: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Database Error", "গ্রাহক ডেটা লোড করার সময় ত্রুটি৷: " + e.getMessage());
         }
     }
 
@@ -372,22 +371,24 @@ public class AdminPanalController implements Initializable {
                     }
                 }
             } else {
-                showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to connect to database");
+                showAlert(Alert.AlertType.ERROR, "Database Error", "ডাটাবেসের সাথে সংযোগ করতে ব্যর্থ হয়েছে");
             }
         } catch (SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error", "Error loading sales data: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Database Error", "বিক্রয় ডেটা লোড করার সময় ত্রুটি৷: " + e.getMessage());
         }
     }
 
     private void loadDashboardData() {
         try (Connection conn = database.connectDb()) {
             if (conn != null) {
+                // Load user count
                 try (PreparedStatement userStmt = conn.prepareStatement("SELECT COUNT(*) AS user_count FROM users WHERE is_admin = 0"); ResultSet userRs = userStmt.executeQuery()) {
                     if (userRs.next()) {
                         user_count_label.setText(String.valueOf(userRs.getInt("user_count")));
                     }
                 }
 
+                // Load daily income
                 try (PreparedStatement dailyIncomeStmt = conn.prepareStatement("SELECT SUM(total_price) AS daily_income FROM sales WHERE sale_date = ?")) {
                     dailyIncomeStmt.setString(1, new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
                     try (ResultSet dailyIncomeRs = dailyIncomeStmt.executeQuery()) {
@@ -398,6 +399,7 @@ public class AdminPanalController implements Initializable {
                     }
                 }
 
+                // Load total income
                 try (PreparedStatement totalIncomeStmt = conn.prepareStatement("SELECT SUM(total_price) AS total_income FROM sales"); ResultSet totalIncomeRs = totalIncomeStmt.executeQuery()) {
                     if (totalIncomeRs.next()) {
                         double totalIncome = totalIncomeRs.getDouble("total_income");
@@ -405,6 +407,7 @@ public class AdminPanalController implements Initializable {
                     }
                 }
 
+                // Load total products sold
                 try (PreparedStatement productsSoldStmt = conn.prepareStatement("SELECT SUM(quantity) AS total_products FROM sales"); ResultSet productsSoldRs = productsSoldStmt.executeQuery()) {
                     if (productsSoldRs.next()) {
                         int totalProducts = productsSoldRs.getInt("total_products");
@@ -412,17 +415,10 @@ public class AdminPanalController implements Initializable {
                     }
                 }
 
-                XYChart.Series<String, Number> incomeSeries = new XYChart.Series<>();
-                incomeSeries.setName("Daily Income");
-                try (PreparedStatement chartStmt = conn.prepareStatement("SELECT sale_date, SUM(total_price) AS total FROM sales WHERE sale_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY sale_date"); ResultSet chartRs = chartStmt.executeQuery()) {
-                    while (chartRs.next()) {
-                        incomeSeries.getData().add(new XYChart.Data<>(chartRs.getString("sale_date"), chartRs.getDouble("total")));
-                    }
-                    day_income_chart.getData().clear();
-                   // day_income_chart.getData().add(incomeSeries);
-                  
-                }
+                // Load stock data for PieChart
+                loadStockPieChart(conn);
 
+                // Load customer chart data
                 XYChart.Series<String, Number> customerSeries = new XYChart.Series<>();
                 customerSeries.setName("Customer Sales");
                 try (PreparedStatement customerChartStmt = conn.prepareStatement("SELECT u.TCB_ID, COUNT(s.sale_id) AS sale_count FROM users u LEFT JOIN sales s ON u.id = s.user_id WHERE u.is_admin = 0 GROUP BY u.id, u.TCB_ID"); ResultSet customerChartRs = customerChartStmt.executeQuery()) {
@@ -433,10 +429,44 @@ public class AdminPanalController implements Initializable {
                     customer_chart.getData().add(customerSeries);
                 }
             } else {
-                showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to connect to database");
+                showAlert(Alert.AlertType.ERROR, "Database Error", "ডাটাবেসের সাথে সংযোগ করতে ব্যর্থ হয়েছে");
             }
         } catch (SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error", "Error loading dashboard data: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Database Error", "ড্যাশবোর্ড ডেটা লোড করার সময় ত্রুটি৷: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Load real-time stock data into PieChart
+     */
+    private void loadStockPieChart(Connection conn) {
+        try {
+            ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+            
+            // Query to get current stock levels for each product
+            String query = "SELECT product_name, stock FROM inventory WHERE stock > 0 ORDER BY stock DESC";
+            try (PreparedStatement stmt = conn.prepareStatement(query); 
+                 ResultSet rs = stmt.executeQuery()) {
+                
+                while (rs.next()) {
+                    String productName = rs.getString("product_name");
+                    int stock = rs.getInt("stock");
+                    
+                    // Add data to pie chart
+                    pieChartData.add(new PieChart.Data(productName + " (" + stock + ")", stock));
+                }
+            }
+            
+            // Update the pie chart
+            stock_pie_chart.setData(pieChartData);
+            stock_pie_chart.setTitle("Current Stock Distribution");
+            
+            // Optional: Add some styling to the pie chart
+            stock_pie_chart.setLegendVisible(true);
+            stock_pie_chart.setLabelsVisible(true);
+            
+        } catch (SQLException e) {
+            showAlert(Alert.AlertType.ERROR, "Chart Error", "স্টক চার্ট ডেটা লোড করার সময় ত্রুটি হয়েছে: " + e.getMessage());
         }
     }
 
@@ -446,7 +476,7 @@ public class AdminPanalController implements Initializable {
         inventory_form.setVisible(false);
         customer_form.setVisible(false);
         sales_form.setVisible(false);
-        loadDashboardData();
+        loadDashboardData(); // Refresh data when dashboard is opened
     }
 
     @FXML
@@ -485,7 +515,7 @@ public class AdminPanalController implements Initializable {
         String priceText = inventory_price.getText().trim();
 
         if (productId.isEmpty() || productName.isEmpty() || stockText.isEmpty() || priceText.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Form Error", "Please fill all fields");
+            showAlert(Alert.AlertType.ERROR, "Form Error", "অনুগ্রহ করে সমস্ত ফর্মের ঘর পূরণ করুন।");
             return;
         }
 
@@ -505,17 +535,18 @@ public class AdminPanalController implements Initializable {
                         stmt.setString(6, dateAdded);
                         stmt.executeUpdate();
                         loadInventoryData();
+                        loadDashboardData(); // Refresh dashboard data including pie chart
                         clearInventoryFields();
-                        showAlert(Alert.AlertType.INFORMATION, "Success", "Product added successfully");
+                        showAlert(Alert.AlertType.INFORMATION, "Success", "পণ্য সফলভাবে যোগ করা হয়েছে");
                     }
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to connect to database");
+                    showAlert(Alert.AlertType.ERROR, "Database Error", "ডাটাবেসের সাথে সংযোগ করতে ব্যর্থ হয়েছে");
                 }
             }
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Form Error", "Stock and Price must be valid numbers");
+            showAlert(Alert.AlertType.ERROR, "Form Error", "স্টক এবং মূল্য অবশ্যই সংখ্যা হতে হবে");
         } catch (SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error", "Error adding product: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Database Error", "পণ্য যোগ করার সময় ত্রুটি: " + e.getMessage());
         }
     }
 
@@ -523,7 +554,7 @@ public class AdminPanalController implements Initializable {
     private void inventory_updateBtn(ActionEvent event) {
         Inventory selected = inventory_tableView.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert(Alert.AlertType.ERROR, "Selection Error", "Please select a product to update");
+            showAlert(Alert.AlertType.ERROR, "Selection Error", "আপডেট করার জন্য একটি পণ্য নির্বাচন করুন");
             return;
         }
 
@@ -534,7 +565,7 @@ public class AdminPanalController implements Initializable {
         String priceText = inventory_price.getText().trim();
 
         if (productId.isEmpty() || productName.isEmpty() || stockText.isEmpty() || priceText.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Form Error", "Please fill all fields");
+            showAlert(Alert.AlertType.ERROR, "Form Error", "অনুগ্রহ করে সমস্ত ফর্মের ঘর পূরণ করুন।");
             return;
         }
 
@@ -554,17 +585,18 @@ public class AdminPanalController implements Initializable {
                         stmt.setString(6, productId);
                         stmt.executeUpdate();
                         loadInventoryData();
+                        loadDashboardData(); // Refresh dashboard data including pie chart
                         clearInventoryFields();
-                        showAlert(Alert.AlertType.INFORMATION, "Success", "Product updated successfully");
+                        showAlert(Alert.AlertType.INFORMATION, "Success", "পণ্য সফলভাবে আপডেট করা হয়েছে");
                     }
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to connect to database");
+                    showAlert(Alert.AlertType.ERROR, "Database Error", "ডাটাবেসের সাথে সংযোগ করতে ব্যর্থ হয়েছে");
                 }
             }
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Form Error", "Stock and Price must be valid numbers");
+            showAlert(Alert.AlertType.ERROR, "Form Error", "স্টক এবং মূল্য অবশ্যই সংখ্যা হতে হবে");
         } catch (SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error", "Error updating product: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Database Error", "পণ্য আপডেট করার সময় ত্রুটি: " + e.getMessage());
         }
     }
 
@@ -572,14 +604,14 @@ public class AdminPanalController implements Initializable {
     private void inventory_deleteBtn(ActionEvent event) {
         Inventory selected = inventory_tableView.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert(Alert.AlertType.ERROR, "Selection Error", "Please select a product to delete");
+            showAlert(Alert.AlertType.ERROR, "Selection Error", "মুছে ফেলার জন্য একটি পণ্য নির্বাচন করুন।");
             return;
         }
 
         alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmation");
         alert.setHeaderText(null);
-        alert.setContentText("Are you sure you want to delete product " + selected.getProductId() + "?");
+        alert.setContentText("আপনি কি নিশ্চিত যে আপনি পণ্যটি মুছে ফেলতে চান? " + selected.getProductId() + "?");
         Optional<ButtonType> option = alert.showAndWait();
 
         if (option.isPresent() && option.get() == ButtonType.OK) {
@@ -589,14 +621,15 @@ public class AdminPanalController implements Initializable {
                         stmt.setString(1, selected.getProductId());
                         stmt.executeUpdate();
                         loadInventoryData();
+                        loadDashboardData(); // Refresh dashboard data including pie chart
                         clearInventoryFields();
-                        showAlert(Alert.AlertType.INFORMATION, "Success", "Product deleted successfully");
+                        showAlert(Alert.AlertType.INFORMATION, "Success", "পণ্য সফলভাবে মুছে ফেলা হয়েছে");
                     }
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to connect to database");
+                    showAlert(Alert.AlertType.ERROR, "Database Error", "ডাটাবেসের সাথে সংযোগ করতে ব্যর্থ হয়েছে");
                 }
             } catch (SQLException e) {
-                showAlert(Alert.AlertType.ERROR, "Database Error", "Error deleting product: " + e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Database Error", "পণ্য মুছে ফেলার সময় ত্রুটি: " + e.getMessage());
             }
         }
     }
@@ -623,6 +656,7 @@ public class AdminPanalController implements Initializable {
         inventory_price.clear();
     }
 
+    // Rest of the methods remain the same...
     @FXML
     private void customer_addBtn(ActionEvent event) {
         String nid = customer_nid.getText().trim();
@@ -630,7 +664,7 @@ public class AdminPanalController implements Initializable {
         String password = customer_password.getText().trim();
 
         if (nid.isEmpty() || tcbId.isEmpty() || password.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Form Error", "Please fill all fields");
+            showAlert(Alert.AlertType.ERROR, "Form Error", "অনুগ্রহ করে সমস্ত ফর্মের ঘর পূরণ করুন।");
             return;
         }
 
@@ -645,16 +679,16 @@ public class AdminPanalController implements Initializable {
                         stmt.executeUpdate();
                         loadCustomerData();
                         clearCustomerFields();
-                        showAlert(Alert.AlertType.INFORMATION, "Success", "Customer added successfully");
+                        showAlert(Alert.AlertType.INFORMATION, "Success", "গ্রাহক সফলভাবে যোগ করা হয়েছে");
                     }
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to connect to database");
+                    showAlert(Alert.AlertType.ERROR, "Database Error", "ডাটাবেসের সাথে সংযোগ করতে ব্যর্থ হয়েছে");
                 }
             }
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Form Error", "NID Number must be a valid number");
+            showAlert(Alert.AlertType.ERROR, "Form Error", "এনআইডি নম্বর অবশ্যই একটি নম্বর হতে হবে");
         } catch (SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error", "Error adding customer: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Database Error", "গ্রাহক যোগ করার সময় ত্রুটি: " + e.getMessage());
         }
     }
 
@@ -662,7 +696,7 @@ public class AdminPanalController implements Initializable {
     private void customer_updateBtn(ActionEvent event) {
         User selected = customer_tableView.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert(Alert.AlertType.ERROR, "Selection Error", "Please select a customer to update");
+            showAlert(Alert.AlertType.ERROR, "Selection Error", "আপডেট করার জন্য অনুগ্রহ করে একজন গ্রাহক নির্বাচন করুন।");
             return;
         }
 
@@ -671,7 +705,7 @@ public class AdminPanalController implements Initializable {
         String password = customer_password.getText().trim();
 
         if (nid.isEmpty() || tcbId.isEmpty() || password.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Form Error", "Please fill all fields");
+            showAlert(Alert.AlertType.ERROR, "Form Error", "অনুগ্রহ করে সমস্ত ফর্মের ঘর পূরণ করুন।");
             return;
         }
 
@@ -687,14 +721,14 @@ public class AdminPanalController implements Initializable {
                         stmt.executeUpdate();
                         loadCustomerData();
                         clearCustomerFields();
-                        showAlert(Alert.AlertType.INFORMATION, "Success", "Customer updated successfully");
+                        showAlert(Alert.AlertType.INFORMATION, "Success", "গ্রাহক সফলভাবে আপডেট করা হয়েছে");
                     }
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to connect to database");
                 }
             }
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Form Error", "NID Number must be a valid number");
+            showAlert(Alert.AlertType.ERROR, "Form Error", "এনআইডি নম্বর অবশ্যই একটি বৈধ নম্বর হতে হবে");
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Database Error", "Error updating customer: " + e.getMessage());
         }
@@ -704,7 +738,7 @@ public class AdminPanalController implements Initializable {
     private void customer_deleteBtn(ActionEvent event) {
         User selected = customer_tableView.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert(Alert.AlertType.ERROR, "Selection Error", "Please select a customer to delete");
+            showAlert(Alert.AlertType.ERROR, "Selection Error", "মুছে ফেলার জন্য অনুগ্রহ করে একজন গ্রাহক নির্বাচন করুন");
             return;
         }
 
@@ -722,7 +756,7 @@ public class AdminPanalController implements Initializable {
                         stmt.executeUpdate();
                         loadCustomerData();
                         clearCustomerFields();
-                        showAlert(Alert.AlertType.INFORMATION, "Success", "Customer deleted successfully");
+                        showAlert(Alert.AlertType.INFORMATION, "Success", "গ্রাহক সফলভাবে মুছে ফেলা হয়েছে");
                     }
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to connect to database");
@@ -761,7 +795,7 @@ public class AdminPanalController implements Initializable {
         String userIdText = sales_userId.getText().trim();
 
         if (productId.isEmpty() || quantityText.isEmpty() || totalPriceText.isEmpty() || userIdText.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Form Error", "Please fill all fields");
+            showAlert(Alert.AlertType.ERROR, "Form Error", "অনুগ্রহ করে সমস্ত ফর্মের ঘর পূরণ করুন।");
             return;
         }
 
@@ -778,7 +812,7 @@ public class AdminPanalController implements Initializable {
                         try (ResultSet productRs = checkProductStmt.executeQuery()) {
                             productRs.next();
                             if (productRs.getInt(1) == 0) {
-                                showAlert(Alert.AlertType.ERROR, "Form Error", "Invalid Product ID");
+                                showAlert(Alert.AlertType.ERROR, "Form Error", "অবৈধ পণ্য ID");
                                 return;
                             }
                         }
@@ -789,7 +823,7 @@ public class AdminPanalController implements Initializable {
                         try (ResultSet userRs = checkUserStmt.executeQuery()) {
                             userRs.next();
                             if (userRs.getInt(1) == 0) {
-                                showAlert(Alert.AlertType.ERROR, "Form Error", "Invalid User ID");
+                                showAlert(Alert.AlertType.ERROR, "Form Error", "অবৈধ ব্যবহারকারী আইডি");
                                 return;
                             }
                         }
@@ -804,15 +838,15 @@ public class AdminPanalController implements Initializable {
                         stmt.executeUpdate();
                         loadSalesData();
                         clearSalesFields();
-                        loadDashboardData();
-                        showAlert(Alert.AlertType.INFORMATION, "Success", "Sale added successfully");
+                        loadDashboardData(); // Refresh dashboard data
+                        showAlert(Alert.AlertType.INFORMATION, "Success", "বিক্রয় সফলভাবে যোগ করা হয়েছে");
                     }
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to connect to database");
                 }
             }
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Form Error", "Quantity, Total Price, and User ID must be valid numbers");
+            showAlert(Alert.AlertType.ERROR, "Form Error", "পরিমাণ, মোট মূল্য এবং ব্যবহারকারীর আইডি অবশ্যই বৈধ সংখ্যা হতে হবে");
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Database Error", "Error adding sale: " + e.getMessage());
         }
@@ -822,7 +856,7 @@ public class AdminPanalController implements Initializable {
     private void sales_updateBtn(ActionEvent event) {
         Sale selected = sales_tableView.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert(Alert.AlertType.ERROR, "Selection Error", "Please select a sale to update");
+            showAlert(Alert.AlertType.ERROR, "Selection Error", "আপডেট করার জন্য একটি বিক্রয় নির্বাচন করুন।");
             return;
         }
 
@@ -832,7 +866,7 @@ public class AdminPanalController implements Initializable {
         String userIdText = sales_userId.getText().trim();
 
         if (productId.isEmpty() || quantityText.isEmpty() || totalPriceText.isEmpty() || userIdText.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Form Error", "Please fill all fields");
+            showAlert(Alert.AlertType.ERROR, "Form Error", "অনুগ্রহ করে সমস্ত ফর্মের ঘর পূরণ করুন।");
             return;
         }
 
@@ -849,7 +883,7 @@ public class AdminPanalController implements Initializable {
                         try (ResultSet productRs = checkProductStmt.executeQuery()) {
                             productRs.next();
                             if (productRs.getInt(1) == 0) {
-                                showAlert(Alert.AlertType.ERROR, "Form Error", "Invalid Product ID");
+                                showAlert(Alert.AlertType.ERROR, "Form Error", "অবৈধ পণ্য ID");
                                 return;
                             }
                         }
@@ -876,8 +910,8 @@ public class AdminPanalController implements Initializable {
                         stmt.executeUpdate();
                         loadSalesData();
                         clearSalesFields();
-                        loadDashboardData();
-                        showAlert(Alert.AlertType.INFORMATION, "Success", "Sale updated successfully");
+                        loadDashboardData(); // Refresh dashboard data
+                        showAlert(Alert.AlertType.INFORMATION, "Success", "বিক্রয় সফলভাবে আপডেট করা হয়েছে");
                     }
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to connect to database");
@@ -894,7 +928,7 @@ public class AdminPanalController implements Initializable {
     private void sales_deleteBtn(ActionEvent event) {
         Sale selected = sales_tableView.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert(Alert.AlertType.ERROR, "Selection Error", "Please select a sale to delete");
+            showAlert(Alert.AlertType.ERROR, "Selection Error", "মুছে ফেলার জন্য একটি বিক্রয় নির্বাচন করুন।");
             return;
         }
 
@@ -912,8 +946,8 @@ public class AdminPanalController implements Initializable {
                         stmt.executeUpdate();
                         loadSalesData();
                         clearSalesFields();
-                        loadDashboardData();
-                        showAlert(Alert.AlertType.INFORMATION, "Success", "Sale deleted successfully");
+                        loadDashboardData(); // Refresh dashboard data
+                        showAlert(Alert.AlertType.INFORMATION, "Success", "বিক্রয় সফলভাবে মুছে ফেলা হয়েছে৷");
                     }
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to connect to database");
@@ -951,7 +985,7 @@ public class AdminPanalController implements Initializable {
         alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmation");
         alert.setHeaderText(null);
-        alert.setContentText("Are you sure you want to log out?");
+        alert.setContentText("তুমি কি নিশ্চিত যে তুমি লগ আউট করতে চাও??");
         Optional<ButtonType> option = alert.showAndWait();
 
         if (option.isPresent() && option.get() == ButtonType.OK) {

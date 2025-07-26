@@ -23,8 +23,10 @@ import java.nio.file.Paths;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class DashBoardController {
     @FXML
@@ -185,10 +187,101 @@ public class DashBoardController {
         }
         loadProducts();
         loadSharedData();
+        checkWeeklyPurchaseStatus();
     }
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    /**
+     * Check if user has made a purchase in the last 7 days
+     * @return true if user can purchase, false if restricted
+     */
+    private boolean canUserPurchase() {
+        try (Connection conn = database.connectDb()) {
+            String query = "SELECT MAX(sale_date) as last_purchase FROM sales WHERE user_id = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                Date lastPurchaseDate = rs.getDate("last_purchase");
+                if (lastPurchaseDate != null) {
+                    Date today = new Date();
+                    long diffInMillies = today.getTime() - lastPurchaseDate.getTime();
+                    long daysBetween = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+                    return daysBetween >= 7; // Allow purchase if 7 or more days have passed
+                }
+            }
+            return true; // No previous purchase found, allow purchase
+        } catch (SQLException e) {
+            showAlert("Error", "Failed to check purchase history: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get the next allowed purchase date for the user
+     * @return Date when user can next purchase, or null if can purchase now
+     */
+    private Date getNextAllowedPurchaseDate() {
+        try (Connection conn = database.connectDb()) {
+            String query = "SELECT MAX(sale_date) as last_purchase FROM sales WHERE user_id = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                Date lastPurchaseDate = rs.getDate("last_purchase");
+                if (lastPurchaseDate != null) {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(lastPurchaseDate);
+                    calendar.add(Calendar.DAY_OF_MONTH, 7);
+                    return calendar.getTime();
+                }
+            }
+        } catch (SQLException e) {
+            showAlert("Error", "Failed to get next purchase date: " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Get days remaining until next allowed purchase
+     * @return number of days remaining, or 0 if can purchase now
+     */
+    private long getDaysUntilNextPurchase() {
+        Date nextAllowedDate = getNextAllowedPurchaseDate();
+        if (nextAllowedDate != null) {
+            Date today = new Date();
+            if (nextAllowedDate.after(today)) {
+                long diffInMillies = nextAllowedDate.getTime() - today.getTime();
+                return TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Check and display weekly purchase status to user
+     */
+    private void checkWeeklyPurchaseStatus() {
+        if (!canUserPurchase()) {
+            Date nextAllowedDate = getNextAllowedPurchaseDate();
+            if (nextAllowedDate != null) {
+                long daysUntilNext = getDaysUntilNextPurchase();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                showAlert("Purchase Restriction", 
+                    "আপনি সপ্তাহে একবার কেনাকাটা করতে পারবেন।\n" +
+                    "আপনার পরবর্তী কেনাকাটার তারিখ: " + dateFormat.format(nextAllowedDate) + "\n" +
+                    "আরও " + daysUntilNext + " দিন অপেক্ষা করুন।");
+                
+                // Disable purchase-related buttons
+                paymentButton.setDisable(true);
+                paymentButton.setText("সীমাবদ্ধ");
+            }
+        }
     }
 
     @FXML
@@ -281,6 +374,20 @@ public class DashBoardController {
     }
 
     public void addProductToCart(String productId, String productName, double price, int quantity) {
+        // Check weekly purchase restriction first
+        if (!canUserPurchase()) {
+            Date nextAllowedDate = getNextAllowedPurchaseDate();
+            if (nextAllowedDate != null) {
+                long daysUntilNext = getDaysUntilNextPurchase();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                showAlert("Purchase Restricted", 
+                    "আপনি সপ্তাহে একবার কেনাকাটা করতে পারবেন।\n" +
+                    "আপনার পরবর্তী কেনাকাটার তারিখ: " + dateFormat.format(nextAllowedDate) + "\n" +
+                    "আরও " + daysUntilNext + " দিন অপেক্ষা করুন।");
+                return;
+            }
+        }
+
         // Enforce limits: 10 for P001, 3 for others
         int maxQuantity = productId.equals("P001") ? 10 : 3;
         for (Product existing : productList) {
@@ -307,6 +414,25 @@ public class DashBoardController {
 
     @FXML
     private void handlePaymentButton(ActionEvent event) {
+        // Check weekly purchase restriction before processing payment
+        if (!canUserPurchase()) {
+            Date nextAllowedDate = getNextAllowedPurchaseDate();
+            if (nextAllowedDate != null) {
+                long daysUntilNext = getDaysUntilNextPurchase();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                showAlert("Purchase Restricted", 
+                    "আপনি সপ্তাহে একবার কেনাকাটা করতে পারবেন।\n" +
+                    "আপনার পরবর্তী কেনাকাটার তারিখ: " + dateFormat.format(nextAllowedDate) + "\n" +
+                    "আরও " + daysUntilNext + " দিন অপেক্ষা করুন।");
+                return;
+            }
+        }
+
+        if (productList.isEmpty()) {
+            showAlert("Error", "No products in cart to purchase!");
+            return;
+        }
+
         try {
             double payment = Double.parseDouble(paymentField.getText());
             if (payment < totalAmount) {
@@ -316,12 +442,14 @@ public class DashBoardController {
             paymentLabel.setText(String.format("%.2f/-", payment));
             double change = payment - totalAmount;
             changeLabel.setText(String.format("%.2f/-", change));
+            
             try (Connection conn = database.connectDb()) {
                 conn.setAutoCommit(false);
                 String insertSale = "INSERT INTO sales (product_id, quantity, total_price, sale_date, user_id) VALUES (?, ?, ?, ?, ?)";
                 String updateStock = "UPDATE inventory SET stock = stock - ? WHERE product_id = ?";
                 PreparedStatement saleStmt = conn.prepareStatement(insertSale);
                 PreparedStatement stockStmt = conn.prepareStatement(updateStock);
+                
                 for (Product product : productList) {
                     saleStmt.setString(1, product.getProductId());
                     saleStmt.setInt(2, product.getQuantity());
@@ -329,13 +457,17 @@ public class DashBoardController {
                     saleStmt.setDate(4, new java.sql.Date(new Date().getTime()));
                     saleStmt.setInt(5, userId);
                     saleStmt.executeUpdate();
+                    
                     stockStmt.setInt(1, product.getQuantity());
                     stockStmt.setString(2, product.getProductId());
                     stockStmt.executeUpdate();
                 }
+                
                 conn.commit();
+                
                 // Update shared data
                 loadSharedData();
+                
                 // Prompt for receipt
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle("Payment Success");
@@ -349,10 +481,20 @@ public class DashBoardController {
                         generateAndSaveReceipt();
                     }
                 });
+                
                 // Clear cart and refresh UI
                 productList.clear();
                 updateTotal();
                 loadProducts();
+                
+                // Disable payment button after successful purchase
+                paymentButton.setDisable(true);
+                paymentButton.setText("সীমাবদ্ধ");
+                
+                showAlert("Purchase Complete", 
+                    "আপনার কেনাকাটা সম্পন্ন হয়েছে।\n" +
+                    "পরবর্তী কেনাকাটা ৭ দিন পর করতে পারবেন।");
+                
             } catch (SQLException e) {
                 showAlert("Error", "Failed to save payment: " + e.getMessage());
             }
