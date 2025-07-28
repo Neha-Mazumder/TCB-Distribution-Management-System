@@ -231,10 +231,6 @@
                     <children>
                         <TableView fx:id="sales_tableView" layoutY="1.0" prefHeight="522.0" prefWidth="941.0" style="-fx-background-color: #82c599;">
                             <columns>
-                                <TableColumn fx:id="sales_col_saleId" prefWidth="76.0" text="বিক্রয় আইডি" />
-                                <TableColumn fx:id="sales_col_productId" prefWidth="100.0" text="পণ্য আইডি" />
-                                <TableColumn fx:id="sales_col_quantity" prefWidth="80.0" text="পরিমাণ" />
-                                <TableColumn fx:id="sales_col_totalPrice" prefWidth="100.0" text="মোট মূল্য" />
                                 <TableColumn fx:id="sales_col_saleId" prefWidth="121.33332824707031" text="বিক্রয় আইডি" />
                                 <TableColumn fx:id="sales_col_productId" prefWidth="164.0" text="পণ্য আইডি" />
                                 <TableColumn fx:id="sales_col_quantity" prefWidth="154.0" text="পরিমাণ" />
@@ -245,15 +241,6 @@
                         </TableView>
                     </children>
                 </AnchorPane>
-                    <children>
-                                <Font size="14.0" />
-                        <Label layoutX="41.0" layoutY="102.0" text="পরিমাণ">
-                        <Label layoutX="41.0" layoutY="161.0" text="মোট মূল্য">
-                        <Label layoutX="12.0" layoutY="216.0" text="ব্যবহারকারী আইডি">
-                        </Label>
-                        <TextField fx:id="sales_quantity" layoutX="130.0" layoutY="99.0" promptText="0" />
-                        <Button fx:id="sales_addBtn" layoutX="168.0" layoutY="295.0" mnemonicParsing="false" onAction="#sales_addBtn" prefHeight="41.0" prefWidth="97.0" style="-fx-background-color: #82c599;" text="যোগ করুন" />
-                        <Button fx:id="sales_deleteBtn" layoutX="28.0" layoutY="353.0" mnemonicParsing="false" onAction="#sales_deleteBtn" prefHeight="41.0" prefWidth="97.0" style="-fx-background-color: #82c599;" text="বাতিল" />
             </children>
         </AnchorPane>
         
@@ -269,9 +256,6 @@
                         <Font name="System Bold" size="16.0" />
                     </font>
                 </Label>
-                <Button fx:id="inventory_btn" layoutX="-1.0" layoutY="261.0" mnemonicParsing="false" onAction="#inventory_btn" prefHeight="56.0" prefWidth="185.0" style="-fx-background-color: #20a677;" text="বর্ণনামূলক তালিকা" textFill="#1a311d" />
-                <Button fx:id="customer_btn" layoutX="-1.0" layoutY="319.0" mnemonicParsing="false" onAction="#customer_btn" prefHeight="56.0" prefWidth="185.0" style="-fx-background-color: #20a677;" text="গ্রাহক" />
-                <Button fx:id="sales_btn" layoutX="-1.0" layoutY="377.0" mnemonicParsing="false" onAction="#sales_btn" prefHeight="56.0" prefWidth="185.0" style="-fx-background-color: #20a677;" text="বিক্রয়" />
                 <Button fx:id="dashboard_btn" layoutX="-1.0" layoutY="203.0" mnemonicParsing="false" onAction="#dashboard_btn" prefHeight="56.0" prefWidth="185.0" style="-fx-background-color: #20a677;" text="ড্যাশবোর্ড" textFill="#fbfffc" />
                 <Button fx:id="inventory_btn" layoutX="-1.0" layoutY="261.0" mnemonicParsing="false" onAction="#inventory_btn" prefHeight="56.0" prefWidth="185.0" style="-fx-background-color: #20a677;" text="বর্ণনামূলক তালিকা" textFill="#fbfffc" />
                 <Button fx:id="customer_btn" layoutX="-1.0" layoutY="319.0" mnemonicParsing="false" onAction="#customer_btn" prefHeight="56.0" prefWidth="185.0" style="-fx-background-color: #20a677;" text="গ্রাহক" textFill="#fbfffc" />

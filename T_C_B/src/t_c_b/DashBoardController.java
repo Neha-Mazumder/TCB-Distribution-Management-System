@@ -429,14 +429,14 @@ public class DashBoardController {
         }
 
         if (productList.isEmpty()) {
-            showAlert("Error", "No products in cart to purchase!");
+            showAlert("Error", "কার্টে কেনার জন্য কোনও পণ্য নেই!");
             return;
         }
 
         try {
             double payment = Double.parseDouble(paymentField.getText());
             if (payment < totalAmount) {
-                showAlert("Error", "Payment amount is less than total amount!");
+                showAlert("Error", "পেমেন্টের পরিমাণ মোট পরিমাণের চেয়ে কম!");
                 return;
             }
             paymentLabel.setText(String.format("%.2f/-", payment));
@@ -471,8 +471,8 @@ public class DashBoardController {
                 // Prompt for receipt
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle("Payment Success");
-                alert.setHeaderText("Payment processed successfully!");
-                alert.setContentText("Would you like to generate a receipt?");
+                alert.setHeaderText("পেমেন্ট সফলভাবে প্রক্রিয়া করা হয়েছে!");
+                alert.setContentText("আপনি কি একটি রসিদ তৈরি করতে চান??");
                 ButtonType yesButton = new ButtonType("Yes");
                 ButtonType noButton = new ButtonType("No");
                 alert.getButtonTypes().setAll(yesButton, noButton);
@@ -499,7 +499,7 @@ public class DashBoardController {
                 showAlert("Error", "Failed to save payment: " + e.getMessage());
             }
         } catch (NumberFormatException e) {
-            showAlert("Error", "Please enter a valid payment amount!");
+            showAlert("Error", "দয়া করে একটি পেমেন্ট পরিমাণ লিখুন!");
         }
     }
 
@@ -512,9 +512,9 @@ public class DashBoardController {
         if (file != null) {
             try {
                 Files.write(Paths.get(file.getAbsolutePath()), receiptContent.getBytes());
-                showAlert("Success", "Receipt saved successfully!");
+                showAlert("Success", "রসিদ সফলভাবে সংরক্ষিত!");
             } catch (IOException e) {
-                showAlert("Error", "Failed to save receipt: " + e.getMessage());
+                showAlert("Error", "রসিদ সংরক্ষণ করতে ব্যর্থ হয়েছে: " + e.getMessage());
             }
         }
     }
@@ -525,16 +525,16 @@ public class DashBoardController {
         if (selectedProduct != null) {
             productList.remove(selectedProduct);
             updateTotal();
-            showAlert("Success", "Selected product removed!");
+            showAlert("Success", "সরানোর জন্য একটি পণ্য নির্বাচন করুন!");
         } else {
-            showAlert("Error", "Please select a product to remove!");
+            showAlert("Error", "সরানোর জন্য একটি পণ্য নির্বাচন করুন!");
         }
     }
 
     @FXML
     private void handleReceiptButton(ActionEvent event) {
         if (productList.isEmpty()) {
-            showAlert("Error", "No products to include in the receipt!");
+            showAlert("Error", "রসিদে কোন পণ্য অন্তর্ভুক্ত নেই!");
             return;
         }
         generateAndSaveReceipt();

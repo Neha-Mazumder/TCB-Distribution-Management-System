@@ -21,7 +21,7 @@
          </font>
       </Label>
       <Spinner fx:id="prod_spinner" layoutX="40.0" layoutY="150.0" prefWidth="100.0" />
-      <Button fx:id="prod_addBtn" layoutX="40.0" layoutY="180.0" onAction="#addToCart" prefHeight="25.0" prefWidth="100.0" text="যোগ করুন">
+      <Button fx:id="prod_addBtn" layoutX="40.0" layoutY="180.0" onAction="#addToCart" prefHeight="25.0" prefWidth="100.0" style="-fx-background-color: #7FB893;" styleClass="login-btn" stylesheets="@login.css" text="যোগ করুন">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
